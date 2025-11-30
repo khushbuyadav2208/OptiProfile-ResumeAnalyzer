@@ -10,12 +10,9 @@ import cors from 'cors'
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import session from 'express-session';
 import userModel from './models/userModel.js';
 import adminRoutes from './routes/adminRoutes.js';
-
-// ⭐⭐⭐ ADD THIS LINE — YOUR MISSING FIX ⭐⭐⭐
 import "./middlewares/passportGoogle.js";
 
 dotenv.config();
