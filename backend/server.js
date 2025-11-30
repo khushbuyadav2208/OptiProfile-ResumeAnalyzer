@@ -23,9 +23,14 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 
-//middlewares
+// =====================
+// CORS FIX (CHANGE #1)
+// =====================
 app.use(cors({
-    origin: process.env.FRONTEND_API,
+    origin: [
+        process.env.FRONTEND_API,   // Netlify URL from .env
+        "http://localhost:5173"      // Local development
+    ],
     credentials: true
 }));
 
@@ -47,21 +52,21 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// app.use(multer());
-
 //routes
 app.use('/api/v1/auth',authRoutes);
 app.use('/api/v1/auth',resumeRoutes);
 app.use('/api/v1/auth',adminRoutes);
-// app.use('/api/v1/product',productRoutes)
-// app.use(express.static(path.join(__dirname,"public")));
 
-// Passport Google OAuth Strategy
-
+// ==============================
+// GOOGLE STRATEGY (NO CHANGE)
+// ==============================
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL, 
+
+    // Callback URL comes from Render ENV (DO NOT CHANGE HERE)
+    callbackURL: process.env.GOOGLE_CALLBACK_URL,
+
     scope: ['profile', 'email'] 
 },
 
@@ -127,7 +132,9 @@ const sendTokenResponse = (user, statusCode, res) => {
 };
 
 
-// Routes
+// ==============================
+// GOOGLE ROUTES
+// ==============================
 app.get('/api/v1/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] }) 
 );
@@ -136,9 +143,13 @@ app.get('/api/v1/auth/google/callback',
     
     passport.authenticate('google'), 
     (req, res) => {
-        // on successful authentication
+
         sendTokenResponse(req.user, 200, res);
-        return res.redirect(`${process.env.FRONTEND_API}`);
+
+        // ============================
+        // FRONTEND REDIRECT FIX (CHANGE #3)
+        // ============================
+        return res.redirect(process.env.FRONTEND_API);
 
     },
     (err, req, res, next) => {
@@ -154,11 +165,8 @@ app.get('/',(req,res)=>{
     })
 })
 
-const port =process.env.port || 8080;
+const port = process.env.port || 8080;
 
 app.listen(port,()=>{
     console.log(`server is running on port ${port}`)
 });
-
-
-// installing morgan colors mongoose dotenv
