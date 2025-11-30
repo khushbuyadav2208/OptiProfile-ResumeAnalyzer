@@ -1,54 +1,19 @@
 import express from 'express';
-import { 
-    registerController, 
-    loginController, 
-    currentUserController 
-} from '../controllers/authControllers.js'; 
-
+import {registerController , loginController, currentUserController } from '../controllers/authControllers.js'; 
 import { protect } from '../middlewares/authMiddlewares.js';
 
-import passport from 'passport';
-import "../middlewares/passportGoogle.js";  // IMPORTANT
+//route object
+const router = express.Router()
 
-const router = express.Router();
+//routing
 
-// ===============================
-// 🌟 AUTH ROUTES
-// ===============================
+//register || method post
+router.post('/register',registerController);
 
-// REGISTER
-router.post('/register', registerController);
+//login
+router.post('/login',loginController);
 
-// LOGIN
-router.post('/login', loginController);
-
-// CURRENT USER (PROTECTED)
+// Protected Route to get current user details
 router.get('/current-user', protect, currentUserController);
 
-// ===============================
-// 🌟 GOOGLE AUTH ROUTES
-// ===============================
-
-// STEP 1 — Redirect user to Google Login Page
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-
-// STEP 2 — Google redirects back to your backend
-router.get(
-  "/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: "https://lively-hotteok-bcdf61.netlify.app/Login",
-  }),
-  (req, res) => {
-    const token = req.user.token;
-
-    // Redirect user to frontend WITH TOKEN
-    res.redirect(
-      `https://lively-hotteok-bcdf61.netlify.app/?token=${token}`
-    );
-  }
-);
-
-export default router;
+export default router
